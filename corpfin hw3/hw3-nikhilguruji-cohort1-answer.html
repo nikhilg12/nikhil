@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)http://www.ivo-welch.info/teaching/hwtemplate.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>hwtemplate.html</title>
+  <meta name="KEYWORDS" content="..."><meta name="AUTHOR" content="You"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="./hwtemplate_files/hw.css">
+<style> h1 { font-size:17pt; text-align:center; color:black; }
+h2 { font-size:14pt; text-align:left; color:black; }
+h3 { font-size:11pt; text-align:left; color:black; }
+
+a { text-decoration:none; color:#3284bf; }
+a:hover { text-decoration:underline; }
+/* { background-color:#3284bf; color:white; } */
+
+hr.fat { background-color:black; height:4px; }
+
+hr { background-color:black; height:1px; }
+
+li { margin-top: 1em; }
+
+p.notice { background-color:white; font-size:10pt; border:solid black 5px; }
+
+caption { color:brown; text-decoration:underline; font-size:9pt; }
+td { padding-left:1em; padding-right:1em; }
+th { text-decoration:underline }
+table { margin-left:2em; }
+
+p.boxright { width:355px; margin-right:0px; background-color:white; font-size:10pt; float:right; padding:20px; font-size:large; vertical-align:top; }
+
+dt.big { line-height:3; font-size:large; font-weight:bolder; font-family:sans-serif;margin-top:12pt }
+dt.hili { font-size:large; font-family:Cursive; display:inline; text-decoration:underline; padding-top:1em; }
+dt.smallbold { font-size:small; font-family:Cursive; display:inline; font-weight:bold; }
+dd { margin-bottom:1ex }
+
+td.hili { font-size:x-large; font-family:cursive; margin:20px; vertical-align:top }
+
+div.smallnobox { width:400pt; font-size:smaller; margin:10px; }
+div.smallbox { width:400pt; font-size:smaller; margin:10px; border:solid black 1px; }
+
+.boxquote {float: left; text-align: center; border: solid black 1px;font-family: Times, sans-serif; font-size: 12pt; margin: 10px;}
+
+td.googler { vertical-align:bottom; color:green; font-size:x-large}
+
+.small { font-size:smaller; }
+.right { text-align:right; }
+
+body { font-family: 'Oxygen', Verdana, serif; margin:2em; background-color: #F0F0F0; }
+
+div.explain { font-size:smaller; margin-left:40px; margin-right:40px; margin-bottom:10px; }
+
+
+summary::-webkit-details-marker {
+    color: #00ACF3;
+    font-size: 125%;
+    margin-right: 2px;
+}
+
+summary:focus {	outline-style: none; }
+article { margin-left:1em; }
+article > details > summary { font-size: 28px; margin-top: 32px; }
+article > details > summary.link { font-size: 28px; margin-top: 32px; text-decoration:underine; }
+details > p { margin-left: 36px; background-color:#f0f0f0; }
+details > div { margin-left: 36px; background-color:#f0f0f0; }
+
+details details { margin-left: 48px; }
+details details summary { font-size: 16px; }css </style> </head>
+
+  
+  
+
+  
+  <body>
+
+    <h1> Homework 3 for Corporate Finance, by Nikhil Guruji (Cohort 1) MFE 2018 batch, Feb 2, 2018 </h1>
+
+    <h2> Executive Summary </h2>
+
+    <p> In this homework, using the monthly returns data from 1925 to 2016, the annual returns were calculated for every stock existing in the universe between the above dates <br> <br>
+
+It is observed that the returns for many companies fell during the 2008 crisis and during the period 1990-1991 </p> <br>
+
+    <p> Given below are two sample plots from a total of 31640 stocks:
+</p>
+
+    <h2> Observations (all values in %) </h2>
+<img src=https://github.com/nikhilg12/nikhil/raw/master/corpfin%20hw3/samplereturn1.png> </img>
+<br>
+<img src=https://github.com/nikhilg12/nikhil/raw/master/corpfin%20hw3/samplereturn2.png> </img>
+<br>
+     <h2> Computer Code (R) </h2>
+<p>(explanation in comments followed by '#' sign)</p>
+
+    <pre>
+
+data=read.csv("D:/MSFE/MFE/Q2/Corporate Finance/HW3/monthlystockdata.csv")
+data$Mktcap=data$PRC*data$SHROUT #price x shares outstanding
+
+data$year=substr(data$date,7,10) #extracting year from the date
+data$year=as.numeric(data$year) #converting year to numeric type
+min(data$year) #verifying that the minimum year is 1925 and maximum is 2016
+max(data$year)
+
+permnos=unique(data[,1]) # extracting all the unique PERMNOS (which uniquely identify each firm)
+data$RET=as.numeric(as.character(data$RET)) #converting the returns to numeric type (already in decimals)
+
+list_firms=list()
+for(j in 1:2000){
+  one_firm=data[which(data[,1]==permnos[j]),]
+  years=unique(one_firm$year) #finding the years for which returns are available
+  one_firm=one_firm[which(!is.na(one_firm$RET)),] #removing missing values from months in which data is not available
+  #(years are not removed)
+  one_firm$RET=1+one_firm$RET
+  ann_ret=c()
+  for(i in 1:length(years)){
+    ann_ret[i]=prod(one_firm[which(one_firm$year==years[i]),6])-1
+  }
+  ann_ret=100*ann_ret #to convert into %
+  ret=cbind(years,ann_ret)
+  colnames(ret)=c("Year","Annual Returns in %")
+  rownames(ret)=c(ret[,1])
+  list_firms[[j]]=ret
+}
+
+#any stock you want to see the barplot of enter the position in the permnos vector (from 1 to 2000)
+# can run the for loop for all the 31000 something stocks. But, takes too long to run
+
+pos_in_permnos=6 #returns from 1925
+permnos[pos_in_permnos] #PERMNO of the stock whose returns I plot a few lines later 
+
+pos_in_permnos=1789 #returns from 1972 to 2016
+permnos[pos_in_permnos] #PERMNO of the stock whose returns I plot a few lines later 
+
+tickername=unique(as.character(data[which(data[,1]==permnos[pos_in_permnos]),3])) #gets the ticker name of the stock
+
+pl=barplot(list_firms[[pos_in_permnos]][,2],main=paste("% annual returns of ticker: ",tickername[length(tickername)]))
+</pre>
+
+    <h2> References </h2>
+
+    <ul>
+      <li> <a href="https://wrds-web.wharton.upenn.edu/wrds/ds/crsp/stock_a/msf.cfm?navId=128"> Wharton Research Data Services:
+</a>
+CRSP Monthly Stock, retrieved on Jan 31, 2018. <br>
+PERMNO, CUSIP, TICKER, HOLDING PERIOD RETURN beginning from Dec 1925 to Dec 2016 </li>
+    </ul>
+
+  
+</body></html>
